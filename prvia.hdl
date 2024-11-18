@@ -1,0 +1,8 @@
+CHIP prvia {
+	IN x, y;
+	OUT out;
+
+	PARTS:
+	And(a = x, b = y, out = AandB);
+	Not(in = AandB, out = out);
+}
