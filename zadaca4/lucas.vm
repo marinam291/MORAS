@@ -1,0 +1,72 @@
+push constant 5
+call lucas 1
+
+function lucas 3  // tri lok var
+// local 0: brojač za trenutni Lucasov broj
+// local 1: prethodni Lucasov broj
+// local 2: trenutni Lucasov broj
+
+// Provjera je li argument jednak 0
+push argument 0
+push constant 0
+eq
+if-goto NULTI
+
+// Provjera je li argument jednak 1
+push argument 0
+push constant 1
+eq
+if-goto PRVI
+
+push argument 0
+push constant 2
+sub
+pop argument 0
+
+push constant 2
+pop local 1  // Nulti Lucasov broj = 2
+
+push constant 1
+pop local 2  // Prvi Lucasov broj = 1
+
+push constant 0
+pop local 0  // Inicijalizacija brojača na 0
+
+label PETLJA
+push local 0
+push argument 0
+eq
+if-goto KRAJ_PETLJE
+
+push local 2
+push local 1
+add
+pop local 2 
+
+push local 2
+pop local 1 
+
+// Ažuriranje brojača
+push local 0
+push constant 1
+add
+pop local 0
+
+goto PETLJA
+
+label KRAJ_PETLJE
+push local 2
+goto END
+
+// Ako je argument 0
+label NULTI
+push constant 2
+goto END
+
+// Ako je argument 1
+label PRVI
+push constant 1
+goto END
+
+label END
+return
