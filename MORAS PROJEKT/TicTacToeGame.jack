@@ -1,0 +1,204 @@
+class TicTacToeGame {
+
+    field Array board;
+    field int currentPlayer;
+    field boolean gameOver;
+    field char playerChar;
+    field char computerChar;
+    field int randomSeed;
+
+    constructor TicTacToeGame new() {
+        var int i;
+        let board = Array.new(9);
+        let i = 0;
+
+        while (i < 9) {
+            let board[i] = 0;
+            let i = i + 1;
+        }
+
+        let currentPlayer = 1;
+        let gameOver = false;
+        let playerChar = 88;
+        let computerChar = 79;
+        let randomSeed = 12345;
+
+        do Screen.clearScreen();
+        do drawBoard();
+        do printMessage("Welcome to Tic-Tac-Toe! Player X, your turn.");
+
+        return this;
+    }
+
+    method void drawBoard() {
+        var int i, row, col, xPos, yPos;
+        var char cellChar;
+
+        do Screen.setColor(true);
+        do Screen.drawLine(100, 70, 400, 70);
+        do Screen.drawLine(100, 140, 400, 140);
+        do Screen.drawLine(200, 0, 200, 210);
+        do Screen.drawLine(300, 0, 300, 210);
+
+        let i = 0;
+        while (i < 9) {
+            let row = i / 3;
+            let col = i - (row * 3);
+
+            let xPos = 100 + (col * 100) + 46;
+            let yPos = (row * 48) + 31;
+
+            do Output.moveCursor(yPos / 8, xPos / 8);
+
+            if (board[i] = 1) {
+                let cellChar = playerChar;
+            } else {
+                if (board[i] = 2) {
+                    let cellChar = computerChar;
+                } else {
+                    let cellChar = 32;
+                }
+            }
+            do Output.printChar(cellChar);
+            let i = i + 1;
+        }
+        return;
+    }
+
+    method void printMessage(String message) {
+        do Output.moveCursor(22, 0);
+        do Output.printString("                                                                            ");
+        do Output.moveCursor(22, 0);
+        do Output.printString(message);
+        return;
+    }
+
+    method boolean makeMove(int position, int player) {
+        if ((position < 0) | (position > 8)) {
+            return false;
+        }
+        if (~(board[position] = 0)) {
+            return false;
+        }
+
+        let board[position] = player;
+        return true;
+    }
+
+    method void computerMove() {
+        var int position;
+        var boolean moved;
+        var int i;
+        var int boardSum;
+
+        let moved = false;
+
+        let boardSum = board[0] + (board[1] * 3) + (board[2] * 5) + (board[3] * 7);
+        let randomSeed = randomSeed + boardSum;
+        let randomSeed = (randomSeed * 22695) + 1;
+        let randomSeed = randomSeed & 32767;
+
+        while (~moved) {
+            let randomSeed = (randomSeed * 22695) + 1;
+            let randomSeed = randomSeed & 32767;
+            let position = randomSeed / 3640;
+            let moved = makeMove(position, 2);
+        }
+
+        return;
+    }
+
+    method int checkWin() {
+        var int i, winner;
+        let winner = 0;
+
+        if ((board[0] = board[1]) & (board[1] = board[2]) & (~(board[0] = 0))) { let winner = board[0]; }
+        if ((board[3] = board[4]) & (board[4] = board[5]) & (~(board[3] = 0))) { let winner = board[3]; }
+        if ((board[6] = board[7]) & (board[7] = board[8]) & (~(board[6] = 0))) { let winner = board[6]; }
+
+        if ((winner = 0) & (board[0] = board[3]) & (board[3] = board[6]) & (~(board[0] = 0))) { let winner = board[0]; }
+        if ((winner = 0) & (board[1] = board[4]) & (board[4] = board[7]) & (~(board[1] = 0))) { let winner = board[1]; }
+        if ((winner = 0) & (board[2] = board[5]) & (board[5] = board[8]) & (~(board[2] = 0))) { let winner = board[2]; }
+
+        if ((winner = 0) & (board[0] = board[4]) & (board[4] = board[8]) & (~(board[0] = 0))) { let winner = board[0]; }
+        if ((winner = 0) & (board[2] = board[4]) & (board[4] = board[6]) & (~(board[2] = 0))) { let winner = board[2]; }
+
+        if (~(winner = 0)) {
+            return winner;
+        }
+
+        let i = 0;
+        while (i < 9) {
+            if (board[i] = 0) {
+                return 0;
+            }
+            let i = i + 1;
+        }
+
+        return 3;
+    }
+
+    method void run() {
+        var char key;
+        var int position;
+        var boolean validMove;
+        var int gameResult;
+        var int waitCounter;
+
+        while (~gameOver) {
+            if (currentPlayer = 1) {
+                do printMessage("Player X, enter a number (1-9) for your move:");
+                let key = 0;
+
+                while (key = 0) {
+                    let key = Keyboard.keyPressed();
+                    do Sys.wait(50);
+                    let waitCounter = waitCounter + 1;
+                }
+
+                let randomSeed = randomSeed + (waitCounter * 31);
+
+                let position = (key - 49);
+
+                let validMove = makeMove(position, 1);
+                if (~validMove) {
+                    do printMessage("Invalid move! Cell occupied or out of range. Try again.");
+                    do Sys.wait(1000);
+                } else {
+                    do drawBoard();
+                    let gameResult = checkWin();
+                    if (~(gameResult = 0)) {
+                        let gameOver = true;
+                    } else {
+                        let currentPlayer = 2;
+                    }
+                }
+            } else {
+                do printMessage("Computer O's turn...");
+                do Sys.wait(1000);
+
+                do computerMove();
+                do drawBoard();
+                let gameResult = checkWin();
+                if (~(gameResult = 0)) {
+                    let gameOver = true;
+                } else {
+                    let currentPlayer = 1;
+                }
+            }
+        }
+
+        if (gameResult = 1) {
+            do printMessage("Game Over! Player X wins!");
+        } else {
+            if (gameResult = 2) {
+                do printMessage("Game Over! Computer O wins!");
+            } else {
+                do printMessage("Game Over! It's a Draw!");
+            }
+        }
+        do Sys.wait(3000);
+
+        return;
+    }
+}

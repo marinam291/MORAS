@@ -1,0 +1,24 @@
+class Main {
+    function void main() {
+        var TicTacToeGame game;
+        var char key;
+        var boolean playAgain;
+
+        while (true) {
+            let game = TicTacToeGame.new();
+            do game.run();
+
+            do Output.moveCursor(22, 0);
+            do Output.printString("                                                                            ");
+            do Output.moveCursor(22, 0);
+            do Output.printString("Game Over! Press ENTER to play again.");
+
+            let key = 0;
+            while ((key = 0) | (~(key = 128))) {
+                let key = Keyboard.keyPressed();
+                do Sys.wait(50);
+            }
+        }
+        return;
+    }
+}
